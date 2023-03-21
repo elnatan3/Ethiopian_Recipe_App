@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -40,6 +39,10 @@ public class EthiopianRecipeApp extends JFrame {
         // top panel with categories combo box
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         categoriesComboBox = new JComboBox<>();
+        categoriesComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        categoriesComboBox.setForeground(Color.BLUE);
+        categoriesComboBox.setBackground(Color.WHITE);
+        // ... add JLabels, buttons, and text fields with similar font and color properties ...
         categoriesComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,6 +54,8 @@ public class EthiopianRecipeApp extends JFrame {
                 buttonsPanel.setVisible(false);
             }
         });
+        
+    
         topPanel.add(new JLabel("Category:"));
         topPanel.add(categoriesComboBox);
      // add recipe button
@@ -68,15 +73,37 @@ public class EthiopianRecipeApp extends JFrame {
                 descriptionArea.setLineWrap(true);
                 descriptionArea.setWrapStyleWord(true);
                 JScrollPane scrollPane = new JScrollPane(descriptionArea);
-                scrollPane.setPreferredSize(new Dimension(200, 100));
+                scrollPane.setPreferredSize(new Dimension(200, 40));
+                JTextArea instructionsArea = new JTextArea();
+                instructionsArea.setLineWrap(true);
+                instructionsArea.setWrapStyleWord(true);
+                JScrollPane instructionsScrollPane = new JScrollPane(instructionsArea);
+                instructionsScrollPane.setPreferredSize(new Dimension(200, 80));
+                
                 JPanel panel = new JPanel(new GridLayout(0, 1));
+                panel.setBackground(Color.WHITE); // set background color
+                panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // add padding
                 panel.add(new JLabel("Category:"));
                 panel.add(categoryComboBox);
-                panel.add(new JLabel("Name:"));
+                JLabel nameLabel = new JLabel("Name:");
+                nameLabel.setForeground(Color.BLUE); // set label color
+                nameLabel.setFont(new Font("Arial", Font.PLAIN, 14)); // set font
+                panel.add(nameLabel);
+                nameField.setPreferredSize(new Dimension(200, 20)); // set field size
                 panel.add(nameField);
-                panel.add(new JLabel("Description:"));
+                JLabel descLabel = new JLabel("Description:");
+                descLabel.setForeground(Color.RED); // set label color
+                descLabel.setFont(new Font("Arial", Font.PLAIN, 14)); // set font
+                panel.add(descLabel);
+                scrollPane.setPreferredSize(new Dimension(200, 40)); // set field size
                 panel.add(scrollPane);
-                
+                JLabel instLabel = new JLabel("Instructions:");
+                instLabel.setForeground(Color.GREEN); // set label color
+                instLabel.setFont(new Font("Arial", Font.PLAIN, 14)); // set font
+                instructionsScrollPane.setPreferredSize(new Dimension(200, 80)); // set field size
+                panel.add(instLabel);
+                panel.add(instructionsScrollPane);
+
                 int result = JOptionPane.showConfirmDialog(null, panel, "Add Recipe",
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
@@ -84,7 +111,8 @@ public class EthiopianRecipeApp extends JFrame {
                     RecipeCategory category = getRecipeCategoryByName(categoryName);
                     String name = nameField.getText();
                     String description = descriptionArea.getText();
-                    Recipe recipe = new Recipe(name, description);
+                    String instruction = instructionsArea.getText();
+                    Recipe recipe = new Recipe(name, description, instruction);
                     category.addRecipe(recipe);
                     updateRecipesList();
                     currentRecipe = recipe;
@@ -93,6 +121,15 @@ public class EthiopianRecipeApp extends JFrame {
                 }
             }
         });
+        addRecipeButton.setForeground(Color.WHITE); // set button text color
+        addRecipeButton.setBackground(Color.BLUE); // set button background color
+        topPanel.add(addRecipeButton);
+
+        addRecipeButton.setForeground(Color.WHITE); // set button text color
+        addRecipeButton.setBackground(Color.BLUE); // set button background color
+        topPanel.add(addRecipeButton);
+
+
         topPanel.add(addRecipeButton);
         searchField = new JTextField(20);
         topPanel.add(searchField);
@@ -108,8 +145,12 @@ public class EthiopianRecipeApp extends JFrame {
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
         // left panel with recipes list
+     // add font and color to the left panel
         JPanel leftPanel = new JPanel(new BorderLayout());
         recipesList = new JList<>();
+        recipesList.setFont(new Font("Arial", Font.PLAIN, 14));
+        recipesList.setForeground(Color.DARK_GRAY);
+        recipesList.setBackground(Color.LIGHT_GRAY);
         recipesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         recipesList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -125,8 +166,12 @@ public class EthiopianRecipeApp extends JFrame {
         mainPanel.add(leftPanel, BorderLayout.WEST);
 
         // right panel with recipe details and buttons
+     // add font and color to the right panel
         JPanel rightPanel = new JPanel(new BorderLayout());
         detailsPanel = new RecipeDetailsPanel();
+        detailsPanel.setFont(new Font("Arial", Font.PLAIN, 14));
+        detailsPanel.setForeground(Color.DARK_GRAY);
+        detailsPanel.setBackground(Color.LIGHT_GRAY);
         rightPanel.add(detailsPanel, BorderLayout.CENTER);
         buttonsPanel = new ButtonsPanel();
         buttonsPanel.setVisible(false);
@@ -146,6 +191,8 @@ public class EthiopianRecipeApp extends JFrame {
         mainPanel.add(rightPanel, BorderLayout.CENTER);
     }
 
+
+
     public void addRecipeCategory(RecipeCategory recipeCategory) {
         recipeCategories.add(recipeCategory);
         updateCategoriesComboBox();
@@ -163,15 +210,42 @@ public class EthiopianRecipeApp extends JFrame {
         }
     }
 
-    public void editRecipe(Recipe recipe) {
-    	String name = JOptionPane.showInputDialog(this, "Enter the new name:", recipe.getName());
-    	String description = JOptionPane.showInputDialog(this, "Enter the new description:", recipe.getDescription());
-    	if (name != null && description != null) {
-    	recipe.editRecipe(name, description);
-    	detailsPanel.setRecipe(recipe);
-    	updateRecipesList();
-    	}
+    private void editRecipe(Recipe recipe) {
+        JTextField nameField = new JTextField(recipe.getName());
+        JTextArea descriptionArea = new JTextArea(recipe.getDescription());
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(descriptionArea);
+        scrollPane.setPreferredSize(new Dimension(200, 100));
+        JTextArea instructionArea = new JTextArea(recipe.getInstructions());
+        instructionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        JScrollPane instructionScrollPane = new JScrollPane(instructionArea);
+        instructionScrollPane.setPreferredSize(new Dimension(300, 100));
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Name:"));
+        panel.add(nameField);
+        panel.add(new JLabel("Description:"));
+        panel.add(scrollPane);
+        panel.add(new JLabel("Instruction:"));
+        panel.add(instructionScrollPane);
+        
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Edit Recipe",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            String name = nameField.getText();
+            String description = descriptionArea.getText();
+            String instruction = instructionArea.getText();
+            recipe.setName(name);
+            recipe.setDescription(description);
+            recipe.setInstructions(instruction);
+            recipe.editRecipe(name, description, instruction);
+            detailsPanel.setRecipe(recipe);            
+        }
+        
     }
+
 
 
 
@@ -243,23 +317,23 @@ public class EthiopianRecipeApp extends JFrame {
         EthiopianRecipeApp app = new EthiopianRecipeApp();
 
         RecipeCategory appetizers = new RecipeCategory("Appetizers");
-        appetizers.addRecipe(new Recipe("Sambusa", "Deep-fried triangular pastry filled with spiced minced meat."));
-        appetizers.addRecipe(new Recipe("Dabo Kolo", "Small, crunchy, slightly sweet snacks made from flour, spices, and water."));
-        appetizers.addRecipe(new Recipe("Fit-fit", "A dish made with injera and spices"));
-        appetizers.addRecipe(new Recipe("Injera with Honey", "Injera is a sourdough flatbread that is popular in Ethiopia. It's traditionally made with teff flour, but you can also use a mix of teff and wheat flour. Drizzle honey over the injera for a sweet breakfast treat!"));
-        appetizers.addRecipe(new Recipe("Ful Medames", "A popular Egyptian dish that is also eaten in Ethiopia. It's a hearty breakfast dish made with fava beans, garlic, lemon juice, and olive oil."));
-        appetizers.addRecipe(new Recipe("Kitcha Fitfit", "A traditional Ethiopian breakfast dish made with shredded injera, spices, and clarified butter. It's often served with yogurt or cheese."));
-
+        appetizers.addRecipe(new Recipe("Sambusa", "Deep-fried triangular pastry filled with spiced minced meat.", "Deep-fry triangular pastry filled with spiced minced meat."));
+        appetizers.addRecipe(new Recipe("Dabo Kolo", "Small, crunchy, slightly sweet snacks made from flour, spices, and water.", "Combine flour, spices, and water to make a dough. Roll the dough into small pieces and deep-fry until golden brown."));
+        appetizers.addRecipe(new Recipe("Fit-fit", "A dish made with injera and spices", "Cut injera into small pieces and mix with spices, onion, tomato, and jalapeño. Saute in a pan with butter or oil until heated through."));
+        appetizers.addRecipe(new Recipe("Injera with Honey", "Injera is a sourdough flatbread that is popular in Ethiopia. It's traditionally made with teff flour, but you can also use a mix of teff and wheat flour.", "Drizzle honey over the injera"));
+        appetizers.addRecipe(new Recipe("Ful Medames", "A popular Egyptian dish that is also eaten in Ethiopia. It's a hearty breakfast dish made with fava beans, garlic, lemon juice, and olive oil.", "Soak fava beans overnight. Drain and rinse the beans, then cook in a pot with garlic, lemon juice, and olive oil until tender. Serve with injera."));
+        appetizers.addRecipe(new Recipe("Kitcha Fitfit", "A traditional Ethiopian breakfast dish made with shredded injera, spices, and clarified butter. It's often served with yogurt or cheese.", "Shred injera into small pieces and mix with spices and clarified butter. Serve with yogurt or cheese."));
+        appetizers.addRecipe(new Recipe("Genfo", "A hot cereal made from roasted barley flour, often eaten for breakfast.", "Roast barley flour in a pan until fragrant. Mix with water and bring to a boil, stirring constantly. Serve hot."));
+        appetizers.addRecipe(new Recipe("Chechebsa", "A traditional Ethiopian breakfast dish made with lightly fried injera bread and spices.", "Tear injera into small pieces and lightly fry in a pan with spices. Serve hot."));
         app.addRecipeCategory(appetizers);
 
         RecipeCategory entrees = new RecipeCategory("Entrees");
-        entrees.addRecipe(new Recipe("Doro Wat", "Spicy chicken stew served with injera."));
-        entrees.addRecipe(new Recipe("Kitfo", "Raw minced beef seasoned with spices and served with injera."));
-        entrees.addRecipe(new Recipe("Injera with Tibs", "A dish made with grilled meat and injera"));
-        entrees.addRecipe(new Recipe("Shiro", "A thick stew made with ground chickpeas or lentils"));
-        entrees.addRecipe(new Recipe("Misir Wot", "A spicy lentil stew that is a staple of Ethiopian cuisine. It's made with red lentils, onions, garlic, and berbere spice blend."));
-        entrees.addRecipe(new Recipe("Gomen", "A dish made with collard greens, onions, and spices. It's often served with injera and other Ethiopian side dishes."));
-
+        entrees.addRecipe(new Recipe("Doro Wat", "Spicy chicken stew served with injera.", "In a large pot, sauté onion, garlic, and ginger until fragrant. Add chicken and berbere spice blend, then simmer until the chicken is cooked through. Serve with injera."));
+        entrees.addRecipe(new Recipe("Kitfo", "Raw minced beef seasoned with spices and served with injera.", "Mix raw minced beef with spices and serve with injera."));
+        entrees.addRecipe(new Recipe("Injera with Tibs", "A dish made with grilled meat and injera", "Grill meat and serve with injera."));
+        entrees.addRecipe(new Recipe("Shiro", "A thick stew made with ground chickpeas or lentils", "In a pot, sauté onion, garlic, and ginger until fragrant. Add ground chickpeas or lentils and water, then simmer until the mixture thickens. Serve with injera."));
+        entrees.addRecipe(new Recipe("Misir Wot", "A spicy lentil stew that is a staple of Ethiopian cuisine. It's made with red lentils, onions, garlic, and berbere spice blend.", "In a pot, sauté onion and garlic until fragrant. Add red lentils, water, and berbere spice blend, then simmer until the lentils are cooked through. Serve with injera."));
+        entrees.addRecipe(new Recipe("Gomen", "A dish made with collard greens, onions, and spices. It's often served with injera and other Ethiopian side dishes.", "Blanch collard greens, then sauté with onion, garlic, and spices. Serve with injera."));
         app.addRecipeCategory(entrees);
 
         app.setVisible(true);
